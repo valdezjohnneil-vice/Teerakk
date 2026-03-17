@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Porjai Love Quiz 💖</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #ffeef8 0%, #f3e8ff 25%, #e8f4ff 50%, #fff3f3 75%, #f8f9ff 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(255,182,193,0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(147,112,219,0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(173,216,230,0.2) 0%, transparent 50%);
+            z-index: -1;
+            animation: shimmer 10s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; }
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 50px 40px;
+            border-radius: 30px;
+            box-shadow: 
+                0 25px 50px rgba(255, 182, 193, 0.3),
+                0 0 0 1px rgba(255, 255, 255, 0.5);
+            text-align: center;
+            max-width: 650px;
+            width: 90%;
+            position: relative;
+            border: 2px solid rgba(255, 182, 193, 0.2);
+        }
+
+        .hearts-decoration {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2em;
+            z-index: 10;
+        }
+
+        h1 {
+            background: linear-gradient(135deg, #ff6b9d, #c44569, #ff8fab);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: clamp(2.2em, 5vw, 3.5em);
+            font-weight: 700;
+            margin-bottom: 10px;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            color: #8b5cf6;
+            font-size: clamp(1.1em, 3vw, 1.4em);
+            font-weight: 500;
+            margin-bottom: 40px;
+            opacity: 0.9;
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .start-screen .start-btn {
+            background: linear-gradient(135deg, #ff6b9d, #c44569);
+            color: white;
+            border: none;
+            padding: 20px 50px;
+            font-size: 1.3em;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 15px 35px rgba(255, 107, 157, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .start-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .start-btn:hover::before {
+            left: 100%;
+        }
+
+        .start-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 50px rgba(255, 107, 157, 0.6);
+        }
+
+        .quiz-screen {
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .progress {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 8px;
+            background: rgba(229, 231, 235, 0.7);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff6b9d, #c44569, #ff8fab);
+            border-radius: 10px;
+            width: 0%;
+            transition: width 0.5s ease;
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            animation: shimmer-progress 2s infinite;
+        }
+
+        @keyframes shimmer-progress {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .question {
+            font-size: clamp(1.3em, 4vw, 1.8em);
+            color: #1f2937;
+            font-weight: 600;
+            line-height: 1.4;
+            margin-bottom: 35px;
+            padding: 0 20px;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            margin-bottom: 30px;
+        }
+
+        .option {
+            background: linear-gradient(135deg, #fff5f7, #fce7f3);
+            border: 2px solid rgba(255, 107, 157, 0.2);
+            padding: 20px 25px;
+            font-size: 1.1em;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 500;
+            color: #6b21a8;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .option::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #ff6b9d, #c44569);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .option:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(255, 107, 157, 0.25);
+            border-color: rgba(255, 107, 157, 0.4);
+        }
+
+        .option:hover::before {
+            opacity: 0.1;
+        }
+
+        .option.selected {
+            background: linear-gradient(135deg, #ff6b9d, #c44569);
+            color: white;
+            border-color: rgba(255, 107, 157, 0.6);
+            transform: scale(1.02);
+            box-shadow: 0 15px 35px rgba(255, 107, 157, 0.4);
+        }
+
+        .result-screen {
+            padding: 20px;
+        }
+
+        .final-score {
+            font-size: clamp(3em, 10vw, 5em);
+            background: linear-gradient(135deg, #ff6b9d, #c44569);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+            margin: 20px 0;
+            line-height: 1;
+        }
+
+        .result-message {
+            font-size: clamp(1.2em, 4vw, 1.6em);
+            color: #6b21a8;
+            font-weight: 600;
+            margin: 30px 0;
+            line-height: 1.5;
+            padding: 0 20px;
+        }
+
+        .monthsary-message {
+            background: linear-gradient(135deg, #a78bfa, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: clamp(1.1em, 3vw, 1.4em);
+            font-weight: 600;
+            margin-top: 30px;
+            padding: 25px;
+            border-radius: 20px;
+            background: rgba(167, 139, 250, 0.1);
+            border: 2px solid rgba(139, 92, 246, 0.2);
+            
+        }
+
+        .restart-btn {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: none;
+            padding: 18px 45px;
+            font-size: 1.2em;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 15px 35px rgba(16, 185, 129, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 25px;
+        }
+
+        .restart-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 25px 50px rgba(16, 185, 129, 0.6);
+        }
+
+        .sparkles {
+            position: absolute;
+            font-size: 1.5em;
+            animation: sparkle 3s infinite;
+        }
+
+        @keyframes sparkle {
+            0%, 100% { opacity: 0; transform: scale(0); }
+            50% { opacity: 1; transform: scale(1); }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 40px 25px;
+                margin: 20px;
+            }
+            
+            .question {
+                font-size: 1.4em;
+            }
+            
+            .options {
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Start Screen -->
+        <div class="screen active" id="startScreen">
+            <div class="hearts-decoration">💖🐾💕</div>
+            <h1>Porjai Love Quiz 💖</h1>
+            <p class="subtitle">How well do you know our story?</p>
+            <button class="start-btn" onclick="startQuiz()">เริ่มทำควิซได้เลย คนสวย🐾 </button>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div class="screen quiz-screen" id="quizScreen">
+            <div class="progress">
+                <span id="progressText">Question 1 of 22</span>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+            <div class="question" id="questionText"></div>
+            <div class="options" id="optionsContainer"></div>
+        </div>
+
+        <!-- Result Screen -->
+        <div class="screen result-screen" id="resultScreen">
+            <div class="hearts-decoration">💖💖💖</div>
+            <h1>Our Love Score 💕</h1>
+            <div class="final-score" id="finalScore">22/22</div>
+            <div class="result-message" id="resultMessage"></div>
+            <div class="monthsary-message">
+                Happy Monthsary every 18th Teerak, Porjai. I love you always. 💖✨
+            </div>
+            <button class="restart-btn" onclick="restartQuiz()">❤️ Restart Quiz ❤️</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "When is our special monthsary date? 💕",
+                options: ["15th", "18th ✨", "20th", "25th"],
+                correct: 1
+            },
+            {
+                question: "What sweet nickname do I call you? 🥰",
+                options: ["Baby", "Porjai Teerak 💖", "Honey", "Sweetie"],
+                correct: 1
+            },
+            {
+                question: "What song reminds us of each other? 🎵",
+                options: ["Perfect", " More Than Words (มากกว่าที่รัก)💕", "Marilag", "All I Ever Need"],
+                correct: 1
+            },
+            {
+                question: "What always makes smile? 😊",
+                options: ["Gifts", "Kiss", "Flowers", "Your Smile"],
+                correct: 4
+            },
+            {
+                question: "What's my favorite thing about you? ✨",
+                options: ["Your beauty", "Your loving heart 💖", "Your style", "Your laugh"],
+                correct: 1
+            },
+            {
+                question: "When did we first start talking? 💬",
+                options: ["January", "August 💕", "March", "May"],
+                correct: 1
+            },
+            {
+                question: "What do I say when comforting you? 🥺",
+                options: ["It's okay", "'I'm here for you always' 💕", "Don't worry", "Everything will be fine"],
+                correct: 1
+            },
+            {
+                question: "What emoji represents our relationship? 💖",
+                options: ["😍", "🐾", "🥰", "❤️"],
+                correct: 1
+            },
+            {
+                question: "What do we want to do together someday? 🌍",
+                options: ["Watch sunset forever", "Travel Together 💕", "Party", "Shop"],
+                correct: 1
+            },
+            {
+                question: "What do I call you in Thai? 🇹🇭",
+                options: ["ที่รัก", "Porjai Teerak 💖", "สวย", "น่ารัก"],
+                correct: 1
+            },
+            {
+                question: "What makes our relationship special? ✨",
+                options: ["Gifts", "Trust", "Friends", "Social media"],
+                correct: 1
+            },
+            {
+                question: "What do we do when we miss each other? 📱",
+                options: ["Wait", "Call", "Sleep", "Text"],
+                correct: 1
+            },
+            {
+                question: "What sweet thing do I always tell you? 🥰",
+                options: ["Don't forget to eat", "'Suay' 💖", "kít tĕung ná", "Be careful"],
+                correct: 1
+            },
+            {
+                question: "What color reminds me of you? 🌸",
+                options: ["Blue", "Pastel Pink 💕", "lavender", "Yellow"],
+                correct: 1
+            },
+            {
+                question: "What word means 'I love You' in Filipino? 🇵🇭",
+                options: ["Mahal kita💖", "Masarap ako", "Miss na Kita", "Bobo tanga gago"],
+                correct: 0
+            },
+            {
+                question: "What moment made us closer? 💞",
+                options: ["Physical looks", "Interest 💕", "Party", "Trip"],
+                correct: 1
+            },
+            {
+                question: "What song reminds us of our love? 🎶",
+                options: ["Happy", "Our love melody 💖", "Dance", "More Than Words (มากกว่าที่รัก)"],
+                correct: 3
+            },
+            {
+                question: "What message do I send every morning? 🌅",
+                options: ["Good morning", "'Good Morning teerak💕", "Don't Forget to eat", "Have a good day"],
+                correct: 2
+            },
+            {
+                question: "How much do you love me? 🤝",
+                options: ["20%", "'100%' ", "50%", "80%"],
+                correct: 1
+            },
+            {
+                question: "What is my favorite color? 🎨",
+                options: ["Black and White", "Brown", "Pink", "Purple "],
+                correct: 0
+            },
+            {
+                question: "My fave food and Dessert? 🍕🍰",
+                options: ["Lasagna and Fried Chicken", "Pizza and Pastry", "Hotdogs and Baecon", "Spaghetti and Ice Cream ", "Burger and Fries"],
+                correct: 1
+            },
+            {
+                question: "What Meaning of NEIL on my Name? 🍕🍰",
+                options: ["Passionate", "Weak", "Funny", "Champion", "Idiot"],
+                correct: 0
+            }
+            
+            
+            
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let answered = false;
+
+        const screens = {
+            start: document.getElementById('startScreen'),
+            quiz: document.getElementById('quizScreen'),
+            result: document.getElementById('resultScreen')
+        };
+
+        const elements = {
+            question: document.getElementById('questionText'),
+            options: document.getElementById('optionsContainer'),
+            progressText: document.getElementById('progressText'),
+            progressFill: document.getElementById('progressFill'),
+            finalScore: document.getElementById('finalScore'),
+            resultMessage: document.getElementById('resultMessage')
+        };
+
+        function showScreen(screenName) {
+            Object.values(screens).forEach(screen => screen.classList.remove('active'));
+            screens[screenName].classList.add('active');
+        }
+
+        function startQuiz() {
+            showScreen('quiz');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const currentQuestion = questions[currentQuestionIndex];
+            elements.question.textContent = currentQuestion.question;
+            elements.options.innerHTML = '';
+            currentQuestion.options.forEach((option, index) => {
+                const optionElement = document.createElement('div');
+                optionElement.classList.add('option');
+                optionElement.textContent = option;
+                optionElement.onclick = () => selectOption(index);
+                elements.options.appendChild(optionElement);
+            });
+            updateProgress();
+            answered = false;
+        }
+
+        function selectOption(selectedIndex) {
+            if (answered) return;
+            answered = true;
+            const currentQuestion = questions[currentQuestionIndex];
+            const options = document.querySelectorAll('.option');
+            options.forEach((option, index) => {
+                if (index === currentQuestion.correct) {
+                    option.classList.add('selected');
+                }
+                if (index === selectedIndex && index !== currentQuestion.correct) {
+                    option.style.backgroundColor = '#f87171';
+                    option.style.color = 'white';
+                }
+                option.onclick = null;
+            });
+            if (selectedIndex === currentQuestion.correct) {
+                score++;
+            }
+            setTimeout(() => {
+                currentQuestionIndex++;
+                if (currentQuestionIndex < questions.length) {
+                    loadQuestion();
+                } else {
+                    showResults();
+                }
+            }, 1000);
+        }
+
+        function updateProgress() {
+            elements.progressText.textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
+            const progressPercent = ((currentQuestionIndex) / questions.length) * 100;
+            elements.progressFill.style.width = `${progressPercent}%`;
+        }
+
+        function showResults() {
+            showScreen('result');
+            elements.finalScore.textContent = `${score}/${questions.length}`;
+            let message = '';
+            if (score === questions.length) {
+                message = "Perfect score! ฉันรักเธอมากตลอดชีวิตนิรันดร์ ที่รัก! 💖";
+            } else if (score >= questions.length * 0.8) {
+                message = "Amazing! You know our love story so well! 💕";
+            } else if (score >= questions.length * 0.5) {
+                message = "Great job! You know a lot about us! 😊";
+            } else {
+                message = "It's okay! Our love is still strong no matter what Teerak! 💖";
+            }
+            elements.resultMessage.textContent = message;
+        }
+
+        function restartQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            showScreen('start');
+        }
+    </script>
+        
